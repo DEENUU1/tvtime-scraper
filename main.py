@@ -20,7 +20,29 @@ class Item(BaseModel):
     image: str
     url: str
 
+def parse_item(item) -> Item:
+    title = item.find_element(By.CLASS_NAME, "genres_genres_title___e19Y").text
+    url = item.find_element(By.TAG_NAME, "a").get_attribute("href")
+    ul = item.find_element(By.CLASS_NAME, "genres_genres_submeta__W1AVW")
+    li = ul.find_elements(By.TAG_NAME, "li")
 
+    duration, production_year = None, None
+    if len(li) == 3:
+        duration = li[0].text
+        production_year = int(li[2].text)
+    genre_div = item.find_element(By.CLASS_NAME, "genres_genres_type__ic9U5")
+    genre = genre_div.find_element(By.TAG_NAME, "span").text
+    image = item.find_element(By.TAG_NAME, "img").get_attribute("src")
+
+    item = Item(
+        title=title,
+        url=url,
+        genre=genre,
+        duration=duration,
+        production_year=production_year,
+        image=image
+    )
+    return item
 
 
 def scrape_data(url: str) -> None:
@@ -37,28 +59,9 @@ def scrape_data(url: str) -> None:
     def scraper(driver) -> None:
         items = driver.find_elements(By.CLASS_NAME, "genres_genres_item__T2zjA")
         for item in items:
-            title = item.find_element(By.CLASS_NAME, "genres_genres_title___e19Y").text
-            url = item.find_element(By.TAG_NAME, "a").get_attribute("href")
-            ul = item.find_element(By.CLASS_NAME, "genres_genres_submeta__W1AVW")
-            li = ul.find_elements(By.TAG_NAME, "li")
-
-            duration, production_year = None, None
-            if len(li) == 3:
-                duration = li[0].text
-                production_year = int(li[2].text)
-            genre_div = item.find_element(By.CLASS_NAME, "genres_genres_type__ic9U5")
-            genre = genre_div.find_element(By.TAG_NAME, "span").text
-            image = item.find_element(By.TAG_NAME, "img").get_attribute("src")
-
-            item = Item(
-                title=title,
-                url=url,
-                genre=genre,
-                duration=duration,
-                production_year=production_year,
-                image=image
-            )
-            print(item)
+            parsed_item = parse_item(item)
+            print(parsed_item)
+            print("\n")
 
     scroll_page_callback(driver, scraper)
 
