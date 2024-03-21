@@ -5,9 +5,22 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 from scroll import scroll_page_callback
+from pydantic import BaseModel
+from typing import Optional
 
 
 BASE_URL: str = "https://www.tvtime.com/pl/genres/action?view=movies"
+
+
+class Item(BaseModel):
+    title: str
+    genre: str
+    duration: Optional[str] = None
+    production_year: Optional[int] = None
+    image: str
+    url: str
+
+
 
 
 def scrape_data(url: str) -> None:
@@ -28,15 +41,24 @@ def scrape_data(url: str) -> None:
             url = item.find_element(By.TAG_NAME, "a").get_attribute("href")
             ul = item.find_element(By.CLASS_NAME, "genres_genres_submeta__W1AVW")
             li = ul.find_elements(By.TAG_NAME, "li")
-            duration = li[0].text
-            production_year = li[2].text
+
+            duration, production_year = None, None
+            if len(li) == 3:
+                duration = li[0].text
+                production_year = int(li[2].text)
             genre_div = item.find_element(By.CLASS_NAME, "genres_genres_type__ic9U5")
             genre = genre_div.find_element(By.TAG_NAME, "span").text
             image = item.find_element(By.TAG_NAME, "img").get_attribute("src")
 
-            print(f"{title}-{genre}-{duration}-{production_year}")
-            print(image)
-            print(url)
+            item = Item(
+                title=title,
+                url=url,
+                genre=genre,
+                duration=duration,
+                production_year=production_year,
+                image=image
+            )
+            print(item)
 
     scroll_page_callback(driver, scraper)
 
