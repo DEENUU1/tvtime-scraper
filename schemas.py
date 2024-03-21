@@ -1,8 +1,9 @@
+from typing import Optional, List
+
 from pydantic import BaseModel
-from typing import Optional
 
 
-class Item(BaseModel):
+class ItemBaseInput(BaseModel):
     title: str
     genre: str
     production_year: Optional[int] = None
@@ -11,3 +12,14 @@ class Item(BaseModel):
     minutes: Optional[int] = None
     url: str
     type: str
+
+
+class ActorBaseInput(BaseModel):
+    full_name: str
+
+
+class ItemInput(ItemBaseInput):
+    details: bool = False
+    rating: Optional[float] = None
+    description: Optional[str] = None
+    actors: List[ActorBaseInput]

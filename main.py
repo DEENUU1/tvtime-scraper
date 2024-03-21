@@ -33,8 +33,8 @@ def export_to_json(
         start_page: int = typer.Option(1, min=1),
         page_limit: int = typer.Option(50, min=1)
 ) -> None:
-        session = next(get_db())
-        ItemService(session).export_to_json(start_page, page_limit)
+        _session = next(get_db())
+        ItemService(_session).export_to_json(start_page, page_limit)
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 from selenium.webdriver.common.by import By
 
 from duration_convert import convert_duration_to_time
-from schemas import Item
+from schemas import ItemBaseInput
 
 
 def parse_item(
@@ -32,7 +32,7 @@ def parse_item(
     genre = genre_div.find_element(By.TAG_NAME, "span").text
     image = item.find_element(By.TAG_NAME, "img").get_attribute("src")
 
-    item = Item(
+    item = ItemBaseInput(
         title=title,
         url=url,
         genre=genre,

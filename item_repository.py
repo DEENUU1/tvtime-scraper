@@ -1,6 +1,6 @@
 from models import Item as ItemModel
 from sqlalchemy.orm import Session
-from schemas import Item as ItemSchema
+from schemas import ItemBaseInput
 from typing import List
 
 
@@ -10,8 +10,8 @@ class ItemRepository:
 
     def create(
             self,
-            data: ItemSchema
-    ) -> ItemSchema:
+            data: ItemBaseInput
+    ) -> ItemBaseInput:
         item = ItemModel(**data.model_dump(exclude_none=True))
         self.session.add(item)
         self.session.commit()
@@ -27,7 +27,7 @@ class ItemRepository:
             self,
             page: int = 1,
             page_limit: int = 50
-    ) -> List[ItemSchema]:
+    ) -> List[ItemBaseInput]:
         items = self.session.query(ItemModel)
         offset = (page - 1) * page_limit if page > 0 else 0
         items = items.offset(offset).limit(page_limit).all()
