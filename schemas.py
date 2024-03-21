@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, UUID4
 
 
 class ItemBaseInput(BaseModel):
@@ -18,8 +18,17 @@ class ActorBaseInput(BaseModel):
     full_name: str
 
 
-class ItemInput(ItemBaseInput):
+class ActorOutput(BaseModel):
+    id: UUID4
+    full_name: str
+
+
+class ItemDetailInput(ItemBaseInput):
     details: bool = False
     rating: Optional[float] = None
     description: Optional[str] = None
     actors: List[ActorBaseInput]
+
+
+class ItemOutput(ItemDetailInput):
+    id: UUID4
