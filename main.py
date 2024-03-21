@@ -1,19 +1,14 @@
 import typer
 
 from check_type import check_type
-from database import engine, get_db
+from database import get_db
 from get_urls import get_urls
-from models import Item
 from scraper import scrape_data
 from item_service import ItemService
-import os
+from init_app import init_app
 
 app = typer.Typer()
-
-Item.metadata.create_all(bind=engine)
-
-if not os.path.exists("data"):
-    os.mkdir("data")
+init_app()
 
 
 @app.command()
