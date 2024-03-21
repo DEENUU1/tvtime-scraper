@@ -24,7 +24,7 @@ class ActorOutput(BaseModel):
 
 
 class ItemDetailInput(ItemBaseInput):
-    details: bool = False
+    details: Optional[bool] = False
     rating: Optional[float] = None
     description: Optional[str] = None
     actors: List[ActorBaseInput]

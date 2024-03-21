@@ -1,7 +1,8 @@
 from models import Item as ItemModel
 from sqlalchemy.orm import Session
-from schemas import ItemBaseInput
-from typing import List
+from schemas import ItemBaseInput, ItemDetailInput, ItemOutput, ActorOutput
+from typing import List, Type
+from pydantic import UUID4
 
 
 class ItemRepository:
@@ -17,11 +18,36 @@ class ItemRepository:
         self.session.commit()
         return item
 
+    def update_details(
+            self,
+            item: Type[ItemModel],
+            data: ItemDetailInput,
+            actors: List[ActorOutput]
+    ) -> ItemOutput:
+        item.details = True
+        item.rating = data.rating
+        item.description = data.description
+        item.actors = actors
+        self.session.commit()
+        return ItemOutput(**item.__dict__)
+
     def item_exists_by_url(
             self,
             url: str
     ) -> bool:
         return self.session.query(ItemModel).filter(ItemModel.url == url).first() is not None
+
+    def item_exists_by_id(
+            self,
+            id: UUID4
+    ) -> bool:
+        return self.session.query(ItemModel).filter(ItemModel.id == id).first() is not None
+
+    def get_object(
+            self,
+            id: UUID4
+    ) -> Type[ItemModel]:
+        return self.session.query(ItemModel).filter(ItemModel.id == id).first()
 
     def get_all(
             self,

@@ -1,6 +1,8 @@
+from pydantic import UUID4
+
 from item_repository import ItemRepository
 from sqlalchemy.orm import Session
-from schemas import ItemBaseInput
+from schemas import ItemBaseInput, ActorOutput, ItemOutput, ItemDetailInput
 from typing import List
 from save_to_json import save_to_json
 
@@ -17,6 +19,19 @@ class ItemService:
             print("Item already exists")
 
         return self.item_repository.create(data)
+
+    def update_details(
+            self,
+            item_id: UUID4,
+            details_data: ItemDetailInput,
+            actors: List[ActorOutput]
+    ) -> ItemOutput:
+        if self.item_repository.item_exists_by_id(item_id):
+            raise "Item does not exists"
+
+        item = self.item_repository.get_object(item_id)
+
+        return self.item_repository.update_details(item, details_data, actors)
 
     def get_all(
             self,
