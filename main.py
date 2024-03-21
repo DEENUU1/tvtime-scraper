@@ -1,3 +1,4 @@
+import json
 from typing import Optional, Dict
 
 from pydantic import BaseModel
@@ -21,6 +22,7 @@ class Item(BaseModel):
     hours: Optional[int] = None
     minutes: Optional[int] = None
     url: str
+    type: str
 
 
 def convert_duration_to_time(duration: Optional[str]) -> Optional[Dict[Optional[int], Optional[int]]]:
@@ -49,7 +51,7 @@ def convert_duration_to_time(duration: Optional[str]) -> Optional[Dict[Optional[
     return {"hours": hours, "minutes": minutes}
 
 
-def parse_item(item) -> Item:
+def parse_item(item, _type: str) -> Item:
     title = item.find_element(By.CLASS_NAME, "genres_genres_title___e19Y").text
     url = item.find_element(By.TAG_NAME, "a").get_attribute("href")
     ul = item.find_element(By.CLASS_NAME, "genres_genres_submeta__W1AVW")
@@ -82,12 +84,13 @@ def parse_item(item) -> Item:
         production_year=production_year,
         hours=hours,
         minutes=minutes,
-        image=image
+        image=image,
+        type=_type
     )
     return item
 
 
-def scrape_data(url: str) -> None:
+def scrape_data(_type: str, url: str) -> None:
     driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
     driver.get(url)
     try:
@@ -101,7 +104,7 @@ def scrape_data(url: str) -> None:
     def scraper(driver) -> None:
         items = driver.find_elements(By.CLASS_NAME, "genres_genres_item__T2zjA")
         for item in items:
-            parsed_item = parse_item(item)
+            parsed_item = parse_item(item, _type)
             print(parsed_item)
 
     scroll_page_callback(driver, scraper)
@@ -109,5 +112,25 @@ def scrape_data(url: str) -> None:
     driver.quit()
 
 
+def get_urls() -> Dict[str, str]:
+    with open("urls.json", "r") as f:
+        urls = json.load(f)
+
+    return urls
+
+
+def main() -> None:
+    urls = get_urls()
+
+    for k, v in urls.items():
+        _type = None
+        if k.endswith("s"):
+            _type = "Show"
+        if k.endswith("m"):
+            _type = "Movie"
+
+        scrape_data(k, v)
+
+
 if __name__ == "__main__":
-    scrape_data(BASE_URL)
+    main()
