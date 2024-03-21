@@ -1,13 +1,15 @@
-from models import Item as ItemModel
+from actor_repository import ActorRepository
+from models import Item as ItemModel, Actor
 from sqlalchemy.orm import Session
-from schemas import ItemBaseInput, ItemDetailInput, ItemOutput, ActorOutput
-from typing import List, Type
+from schemas import ItemBaseInput, ItemDetailInput, ItemOutput
+from typing import List, Type, Any, Dict
 from pydantic import UUID4
 
 
 class ItemRepository:
     def __init__(self, session: Session):
         self.session = session
+        self.actor_repository = ActorRepository(session)
 
     def create(
             self,
@@ -22,15 +24,36 @@ class ItemRepository:
             self,
             item: Type[ItemModel],
             data: ItemDetailInput,
-            actors: List[ActorOutput]
-    ) -> ItemOutput:
+            actors: List[Type[Actor]]
+    ) -> Dict[str, Any]:
         item.details = True
         item.rating = data.rating
         item.description = data.description
         item.keywords = data.keywords
-        item.actors = actors
+
+        for actor in actors:
+            actor_obj = self.actor_repository.get_object_by_id(actor.id)
+            item.actors.append(actor_obj)
+
         self.session.commit()
-        return ItemOutput(**item.__dict__)
+
+        return {
+            "id":  item.id,
+            "title": item.title,
+            "genre": item.genre,
+            "production_year":  item.production_year,
+            "image": item.image,
+            "hours":  item.hours,
+            "minutes": item.minutes,
+            "url": item.url,
+            "type": item.type,
+            "rating": item.rating,
+            "description": item.description,
+            "keywords": item.keywords,
+            "details": item.details,
+            "actors": [actor.full_name for actor in item.actors],
+        }
+        # return ItemOutput(**item.__dict__)
 
     def item_exists_by_url(
             self,
@@ -44,11 +67,17 @@ class ItemRepository:
     ) -> bool:
         return self.session.query(ItemModel).filter(ItemModel.id == id).first() is not None
 
-    def get_object(
+    def get_object_by_id(
             self,
             id: UUID4
     ) -> Type[ItemModel]:
         return self.session.query(ItemModel).filter(ItemModel.id == id).first()
+
+    def get_object_by_url(
+            self,
+            url: str
+    ) -> Type[ItemModel]:
+        return self.session.query(ItemModel).filter(ItemModel.url == url).first()
 
     def get_all(
             self,

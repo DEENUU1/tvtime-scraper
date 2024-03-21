@@ -3,8 +3,10 @@ from pydantic import UUID4
 from item_repository import ItemRepository
 from sqlalchemy.orm import Session
 from schemas import ItemBaseInput, ActorOutput, ItemOutput, ItemDetailInput
-from typing import List
+from typing import List, Type, Any, Dict
 from save_to_json import save_to_json
+
+from models import Item, Actor
 
 
 class ItemService:
@@ -22,14 +24,14 @@ class ItemService:
 
     def update_details(
             self,
-            item_id: UUID4,
+            item_url: str,
             details_data: ItemDetailInput,
-            actors: List[ActorOutput]
-    ) -> ItemOutput:
-        if self.item_repository.item_exists_by_id(item_id):
+            actors: List[UUID4]
+    ) -> Dict[str, Any]:
+        if not self.item_repository.item_exists_by_url(item_url):
             raise "Item does not exists"
 
-        item = self.item_repository.get_object(item_id)
+        item = self.item_repository.get_object_by_url(item_url)
 
         return self.item_repository.update_details(item, details_data, actors)
 
@@ -39,6 +41,9 @@ class ItemService:
             page_limit: int = 50
     ) -> List[ItemBaseInput]:
         return self.item_repository.get_all(page, page_limit)
+
+    def get_all_details_not_found(self) -> List[Type[Item]]:
+        return self.item_repository.get_all_details_not_found()
 
     def export_to_json(self, page: int = 1, page_limit: int = 50) -> None:
         page_num = page

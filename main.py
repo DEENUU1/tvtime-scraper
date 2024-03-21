@@ -30,8 +30,9 @@ def scrape_list_by_url(
 
 @app.command()
 def scrape_details() -> None:
-    url = "https://www.tvtime.com/pl/movie/050ea6f8-fb27-46d3-b78b-4da4b6b76783"
-    scraper.scrape_details(url)
+    items = ItemService(next(get_db())).get_all_details_not_found()
+    for item in items:
+        scraper.scrape_details(item.url)
 
 
 @app.command()

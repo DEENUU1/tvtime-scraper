@@ -47,43 +47,51 @@ def scrape_details(
     driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
     driver.get(url)
 
-    try:
-        consent_button = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.CLASS_NAME, "fc-cta-consent"))
-        )
-        consent_button.click()
+    # try:
+    consent_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CLASS_NAME, "fc-cta-consent"))
+    )
+    consent_button.click()
 
+    rating_val = None
+    try:
         rating_div = driver.find_element(By.CLASS_NAME, "movie_rating_front_stars__6kr8Q").get_attribute("style")
         rating_val = rating_div.split(":")[1].strip().replace("%", "").replace(";", "")
-
-        description = driver.find_element(By.CLASS_NAME, "header_overview__vuZwx").text
-
-        keywords = []
-        keywords_div = driver.find_element(By.CLASS_NAME, "header_genres__VbXDF")
-        keyword_elements = keywords_div.find_elements(By.TAG_NAME, "span")
-        for keyword in keyword_elements:
-            keywords.append(keyword.text)
-
-        casts = driver.find_elements(By.CLASS_NAME, "cast")
-
-        actors = []
-        for actor in casts:
-            full_name = actor.find_element(By.CLASS_NAME, "actor-name").text
-            image = actor.find_element(By.CLASS_NAME, "card-img").get_attribute("src")
-            url = actor.get_attribute("href")
-
-            actor = ActorBaseInput(full_name=full_name, image=image, url=url)
-
-            actor_obj = ActorService(next(get_db())).create_actor(actor)
-            actors.append(actor_obj)
-
-        item = ItemDetailInput(
-            rating=float(rating_val),
-            description=description,
-            actors=actors,
-            keywords=",".join(keywords)
-        )
-        print(item)
-
     except Exception as e:
-        print(e)
+        pass
+
+    description = driver.find_element(By.CLASS_NAME, "header_overview__vuZwx").text
+
+    keywords = []
+    keywords_div = driver.find_element(By.CLASS_NAME, "header_genres__VbXDF")
+    keyword_elements = keywords_div.find_elements(By.TAG_NAME, "span")
+    for keyword in keyword_elements:
+        keywords.append(keyword.text)
+
+    casts = driver.find_elements(By.CLASS_NAME, "cast")
+
+    actors = []
+    for actor in casts:
+        full_name = actor.find_element(By.CLASS_NAME, "actor-name").text
+        image = actor.find_element(By.CLASS_NAME, "card-img").get_attribute("src")
+        actor_url = actor.get_attribute("href")
+
+        actor = ActorBaseInput(full_name=full_name, image=image, url=actor_url)
+
+        actor_obj = ActorService(next(get_db())).create_actor(actor)
+        actors.append(actor_obj)
+
+    if rating_val:
+        rating_val = float(rating_val)
+
+    item = ItemDetailInput(
+        rating=rating_val,
+        description=description,
+        actors=actors,
+        keywords=",".join(keywords)
+    )
+
+    ItemService(next(get_db())).update_details(url, item, actors)
+
+    # except Exception as e:
+    #     print(e)
