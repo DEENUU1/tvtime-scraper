@@ -17,6 +17,8 @@ class Actor(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     full_name = Column(String, nullable=False)
+    url = Column(String, nullable=True)
+    image = Column(String, nullable=True)
     items = relationship("Item", secondary=actor_item_association, back_populates="actors")
 
 
@@ -33,6 +35,7 @@ class Item(Base):
     url = Column(String, nullable=False)
     type = Column(String, nullable=False)
     details = Column(Boolean, default=False)
+    keywords = Column(String, nullable=True)
     rating = Column(Float, nullable=True)
     description = Column(String, nullable=True)
     actors = relationship("Actor", secondary=actor_item_association, back_populates="items")

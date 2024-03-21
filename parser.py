@@ -6,7 +6,7 @@ from schemas import ItemBaseInput
 
 def parse_item(
         item, _type: str
-) -> Item:
+) -> ItemBaseInput:
     title = item.find_element(By.CLASS_NAME, "genres_genres_title___e19Y").text
     url = item.find_element(By.TAG_NAME, "a").get_attribute("href")
     ul = item.find_element(By.CLASS_NAME, "genres_genres_submeta__W1AVW")

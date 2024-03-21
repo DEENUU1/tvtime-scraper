@@ -27,6 +27,7 @@ class ItemRepository:
         item.details = True
         item.rating = data.rating
         item.description = data.description
+        item.keywords = data.keywords
         item.actors = actors
         self.session.commit()
         return ItemOutput(**item.__dict__)
@@ -57,4 +58,7 @@ class ItemRepository:
         items = self.session.query(ItemModel)
         offset = (page - 1) * page_limit if page > 0 else 0
         items = items.offset(offset).limit(page_limit).all()
-        return [ItemSchema(**item.__dict__) for item in items]
+        return [ItemBaseInput(**item.__dict__) for item in items]
+
+    def get_all_details_not_found(self) -> List[Type[ItemModel]]:
+        return self.session.query(ItemModel).filter(ItemModel.details == False).all()

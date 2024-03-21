@@ -3,7 +3,7 @@ import typer
 from check_type import check_type
 from database import get_db
 from get_urls import get_urls
-from scraper import scrape_data
+import scraper
 from item_service import ItemService
 from init_app import init_app
 
@@ -12,20 +12,26 @@ init_app()
 
 
 @app.command()
-def scrape() -> None:
+def scrape_list() -> None:
     urls = get_urls()
 
     for k, v in urls.items():
         _type = check_type(v)
-        scrape_data(k, v)
+        scraper.scrape_data(k, v)
 
 
 @app.command()
-def scrape_by_url(
+def scrape_list_by_url(
         url: str
 ) -> None:
     _type = check_type(url)
-    scrape_data(_type, url)
+    scraper.scrape_data(_type, url)
+
+
+@app.command()
+def scrape_details() -> None:
+    url = "https://www.tvtime.com/pl/movie/050ea6f8-fb27-46d3-b78b-4da4b6b76783"
+    scraper.scrape_details(url)
 
 
 @app.command()
