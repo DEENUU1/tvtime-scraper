@@ -26,3 +26,6 @@ class ActorRepository:
     def get_actor_by_full_name(self, full_name: str) -> ActorOutput:
         actor = self.session.query(Actor).filter(Actor.full_name == full_name).first()
         return ActorOutput(**actor.__dict__)
+
+    def actor_exists_by_full_name(self, full_name: str) -> bool:
+        return self.session.query(Actor).filter(Actor.full_name == full_name).first() is not None
