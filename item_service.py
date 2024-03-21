@@ -39,7 +39,7 @@ class ItemService:
             self,
             page: int = 1,
             page_limit: int = 50
-    ) -> List[ItemBaseInput]:
+    ) -> List[ItemOutput]:
         return self.item_repository.get_all(page, page_limit)
 
     def get_all_details_not_found(self) -> List[Type[Item]]:

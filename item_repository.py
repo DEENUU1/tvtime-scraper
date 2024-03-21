@@ -1,7 +1,7 @@
 from actor_repository import ActorRepository
 from models import Item as ItemModel, Actor
 from sqlalchemy.orm import Session
-from schemas import ItemBaseInput, ItemDetailInput, ItemOutput
+from schemas import ItemBaseInput, ItemDetailInput, ItemOutput, ActorOutput
 from typing import List, Type, Any, Dict
 from pydantic import UUID4
 
@@ -83,11 +83,39 @@ class ItemRepository:
             self,
             page: int = 1,
             page_limit: int = 50
-    ) -> List[ItemBaseInput]:
+    ) -> List[ItemOutput]:
         items = self.session.query(ItemModel)
         offset = (page - 1) * page_limit if page > 0 else 0
         items = items.offset(offset).limit(page_limit).all()
-        return [ItemBaseInput(**item.__dict__) for item in items]
+
+        item_outputs = []
+        for item in items:
+            actors_output = [
+                ActorOutput(
+                    id=actor.id,
+                    full_name=actor.full_name,
+                    image=actor.image,
+                    url=actor.url
+                ) for actor in item.actors
+            ]
+            item_output = ItemOutput(
+                id=item.id,
+                title=item.title,
+                genre=item.genre,
+                production_year=item.production_year,
+                image=item.image,
+                hours=item.hours,
+                minutes=item.minutes,
+                url=item.url,
+                type=item.type,
+                details=item.details,
+                rating=item.rating,
+                description=item.description,
+                keywords=item.keywords,
+                actors=actors_output
+            )
+            item_outputs.append(item_output)
+        return item_outputs
 
     def get_all_details_not_found(self) -> List[Type[ItemModel]]:
         return self.session.query(ItemModel).filter(ItemModel.details == False).all()

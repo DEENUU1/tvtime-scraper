@@ -1,15 +1,14 @@
 from sqlalchemy.orm import Session
 
 from actor_repository import ActorRepository
-from models import Actor
-from schemas import ActorBaseInput
+from schemas import ActorBaseInput, ActorOutput
 
 
 class ActorService:
     def __init__(self, session: Session):
         self.repository = ActorRepository(session)
 
-    def create_actor(self, actor: ActorBaseInput) -> Actor:
+    def create_actor(self, actor: ActorBaseInput) -> ActorOutput:
         if self.repository.actor_exists_by_full_name(actor.full_name):
             return self.repository.get_actor_by_full_name(actor.full_name)
 
