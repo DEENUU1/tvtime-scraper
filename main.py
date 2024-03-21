@@ -4,7 +4,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
-import time
 from scroll import scroll_page_callback
 
 
@@ -26,7 +25,18 @@ def scrape_data(url: str) -> None:
         items = driver.find_elements(By.CLASS_NAME, "genres_genres_item__T2zjA")
         for item in items:
             title = item.find_element(By.CLASS_NAME, "genres_genres_title___e19Y").text
-            print(title)
+            url = item.find_element(By.TAG_NAME, "a").get_attribute("href")
+            ul = item.find_element(By.CLASS_NAME, "genres_genres_submeta__W1AVW")
+            li = ul.find_elements(By.TAG_NAME, "li")
+            duration = li[0].text
+            production_year = li[2].text
+            genre_div = item.find_element(By.CLASS_NAME, "genres_genres_type__ic9U5")
+            genre = genre_div.find_element(By.TAG_NAME, "span").text
+            image = item.find_element(By.TAG_NAME, "img").get_attribute("src")
+
+            print(f"{title}-{genre}-{duration}-{production_year}")
+            print(image)
+            print(url)
 
     scroll_page_callback(driver, scraper)
 
