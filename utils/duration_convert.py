@@ -4,6 +4,15 @@ from typing import Optional, Dict
 def convert_duration_to_time(
         duration: Optional[str]
 ) -> Optional[Dict[Optional[int], Optional[int]]]:
+    """
+    Convert duration string to hours and minutes.
+
+    Args:
+        duration (Optional[str]): Duration string in format 'XhYm'.
+
+    Returns:
+        Optional[Dict[Optional[int], Optional[int]]]: Dictionary containing hours and minutes.
+    """
     if not duration:
         return None
 

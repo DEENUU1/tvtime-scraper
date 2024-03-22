@@ -1,12 +1,23 @@
 from selenium.webdriver.common.by import By
 
-from duration_convert import convert_duration_to_time
-from schemas import ItemBaseInput
+from schemas.schemas import ItemBaseInput
+from utils.duration_convert import convert_duration_to_time
 
 
 def parse_item(
         item, _type: str
 ) -> ItemBaseInput:
+    """
+    Parse the HTML element representing an item and extract relevant information.
+
+    Args:
+        item (selenium.webdriver.remote.webelement.WebElement): The HTML element representing an item.
+        _type (str): The type of the item, either "Movie" or "Show".
+
+    Returns:
+        ItemBaseInput: An object containing parsed information about the item.
+
+    """
     title = item.find_element(By.CLASS_NAME, "genres_genres_title___e19Y").text
     url = item.find_element(By.TAG_NAME, "a").get_attribute("href")
     ul = item.find_element(By.CLASS_NAME, "genres_genres_submeta__W1AVW")

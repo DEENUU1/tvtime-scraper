@@ -1,11 +1,11 @@
 import typer
 
-from check_type import check_type
-from database import get_db
-from get_urls import get_urls
-import scraper
-from item_service import ItemService
-from init_app import init_app
+from config.database import get_db
+from scrapers import scrape_details, scrape_list
+from services.item_service import ItemService
+from utils.check_type import check_type
+from utils.get_urls import get_urls
+from utils.init_app import init_app
 
 app = typer.Typer()
 init_app()
@@ -13,26 +13,37 @@ init_app()
 
 @app.command()
 def scrape_list() -> None:
+    """
+    Scrape list of items from URLs.
+    """
     urls = get_urls()
-
     for k, v in urls.items():
         _type = check_type(v)
-        scraper.scrape_data(k, v)
+        scrape_list.scrape_list(k, v)
 
 
 @app.command()
 def scrape_list_by_url(
         url: str
 ) -> None:
+    """
+    Scrape list of items from a single URL.
+
+    Args:
+        url (str): URL to scrape.
+    """
     _type = check_type(url)
-    scraper.scrape_data(_type, url)
+    scrape_list.scrape_list(_type, url)
 
 
 @app.command()
-def scrape_details() -> None:
+def scrape_all_details() -> None:
+    """
+    Scrape details for all items.
+    """
     items = ItemService(next(get_db())).get_all_details_not_found()
     for item in items:
-        scraper.scrape_details(item.url)
+        scrape_details.scrape_details(item.url)
 
 
 @app.command()
@@ -40,8 +51,18 @@ def export_to_json(
         start_page: int = typer.Option(1, min=1),
         page_limit: int = typer.Option(50, min=1)
 ) -> None:
-        _session = next(get_db())
-        ItemService(_session).export_to_json(start_page, page_limit)
+    """
+    Export items to JSON files.
+
+    Args:
+        start_page (int): Start page number.
+        page_limit (int): Number of items per page.
+
+    Returns:
+        None
+    """
+    _session = next(get_db())
+    ItemService(_session).export_to_json(start_page, page_limit)
 
 
 if __name__ == "__main__":

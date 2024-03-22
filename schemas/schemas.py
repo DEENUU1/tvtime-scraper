@@ -1,8 +1,6 @@
-from typing import Optional, List, Type
+from typing import Optional, List
 
 from pydantic import BaseModel, UUID4
-
-from models import Actor
 
 
 class ItemBaseInput(BaseModel):
