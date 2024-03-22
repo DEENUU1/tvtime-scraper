@@ -29,8 +29,8 @@ def scrape_list(
         items = driver.find_elements(By.CLASS_NAME, "genres_genres_item__T2zjA")
         for item in items:
             parsed_item = parse_item(item, _type)
-            ItemService(session).create(parsed_item)
-
+            obj = ItemService(session).create(parsed_item)
+            print(f"Scrape {obj.title}")
     scroll_page_callback(driver, scraper)
 
     driver.quit()

@@ -40,4 +40,4 @@ def scrape_details(
     )
 
     item = ItemService(session).update_details(url, item, actors)
-    print(item)
+    print(f"Scraped details: {item}")

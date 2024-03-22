@@ -20,7 +20,7 @@ def list_scraper() -> None:
     urls = get_urls()
     for k, v in urls.items():
         _type = check_type(v)
-        scrape_list.scrape_list(session, k, v)
+        scrape_list.scrape_list(session, _type, v)
 
 
 @app.command()

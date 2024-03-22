@@ -14,5 +14,5 @@ def init_app() -> None:
     Actor.metadata.create_all(bind=engine)
 
     # Create data directory if not exists
-    if not os.path.exists("../data"):
-        os.mkdir("../data")
+    if not os.path.exists("data"):
+        os.mkdir("data")
