@@ -9,10 +9,10 @@
 
 <br />
 <div align="center">
-  <h3 align="center">TvTime Scraper</h3>
+  <h3 align="center">TV Time Scraper</h3>
 
   <p align="center">
-    A script enabling the collection and export of all movies/shows from the tvtime.com website
+    Script for gathering detailed information about movies and shows from the tvtime.com website
     <br />
     <br />
     <a href="https://github.com/DEENUU1/tvtime-scraper/issues">Report Bug</a>
