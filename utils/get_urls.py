@@ -9,7 +9,7 @@ def get_urls() -> Dict[str, str]:
     Returns:
         Dict[str, str]: Dictionary containing URLs.
     """
-    with open("../urls.json", "r") as f:
+    with open("urls.json", "r") as f:
         urls = json.load(f)
 
     return urls

@@ -1,59 +1,36 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
 
-from config.database import get_db
-from schemas.schemas import ActorBaseInput, ItemDetailInput
-from services.actor_service import ActorService
+from parsers.parse_actors import get_actors
+from parsers.parse_keywords import get_keywords
+from parsers.parse_rating import get_rating
+from schemas.schemas import ItemDetailInput
 from services.item_service import ItemService
+from .click_cookies import click_cookies
+from .driver import get_driver
 
 
 def scrape_details(
+        session,
         url: str
 ) -> None:
-    _service = ItemService(next(get_db()))
-    driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
+    """
+    Scrape details of an item from a webpage.
+
+    Args:
+        session: Session object for interacting with the item service.
+        url (str): URL of the webpage to scrape.
+    """
+    driver = get_driver()
     driver.get(url)
 
-    # try:
-    consent_button = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CLASS_NAME, "fc-cta-consent"))
-    )
-    consent_button.click()
-
-    rating_val = None
-    try:
-        rating_div = driver.find_element(By.CLASS_NAME, "movie_rating_front_stars__6kr8Q").get_attribute("style")
-        rating_val = rating_div.split(":")[1].strip().replace("%", "").replace(";", "")
-    except Exception as e:
-        pass
+    click_cookies(driver)
 
     description = driver.find_element(By.CLASS_NAME, "header_overview__vuZwx").text
-
-    keywords = []
-    keywords_div = driver.find_element(By.CLASS_NAME, "header_genres__VbXDF")
-    keyword_elements = keywords_div.find_elements(By.TAG_NAME, "span")
-    for keyword in keyword_elements:
-        keywords.append(keyword.text)
+    rating_val = get_rating(driver)
+    keywords = get_keywords(driver)
 
     casts = driver.find_elements(By.CLASS_NAME, "cast")
-
-    actors = []
-    for actor in casts:
-        full_name = actor.find_element(By.CLASS_NAME, "actor-name").text
-        image = actor.find_element(By.CLASS_NAME, "card-img").get_attribute("src")
-        actor_url = actor.get_attribute("href")
-
-        actor = ActorBaseInput(full_name=full_name, image=image, url=actor_url)
-
-        actor_obj = ActorService(next(get_db())).create_actor(actor)
-        actors.append(actor_obj)
-
-    if rating_val:
-        rating_val = float(rating_val)
+    actors = get_actors(casts, session)
 
     item = ItemDetailInput(
         rating=rating_val,
@@ -62,4 +39,5 @@ def scrape_details(
         keywords=",".join(keywords)
     )
 
-    ItemService(next(get_db())).update_details(url, item, actors)
+    item = ItemService(session).update_details(url, item, actors)
+    print(item)

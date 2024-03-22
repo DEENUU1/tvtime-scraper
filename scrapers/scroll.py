@@ -2,6 +2,13 @@ from time import sleep
 
 
 def scroll_page_callback(driver, callback) -> None:
+    """
+    Scroll the webpage and execute a callback function repeatedly until certain conditions are met.
+
+    Args:
+        driver: Selenium WebDriver instance.
+        callback: Callback function to execute after each scroll.
+    """
     try:
         last_height = driver.execute_script("return document.body.scrollHeight")
         consecutive_scrolls = 0
