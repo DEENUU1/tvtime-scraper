@@ -36,7 +36,7 @@ def scrape_details(
         rating=rating_val,
         description=description,
         actors=actors,
-        keywords=",".join(keywords)
+        keywords="".join(keywords)
     )
 
     item = ItemService(session).update_details(url, item, actors)
